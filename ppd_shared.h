@@ -10,6 +10,10 @@
  ***********************************************************************/
 #ifndef PPD_SHARED
 #define PPD_SHARED
+
+/* the last two characters required in a string as returned from fgets */
+#define EXTRACHARS 2
+
 /**
  * datatype to represent a boolean value within the system
  **/

@@ -80,3 +80,22 @@ BOOLEAN add_list_item(struct ppd_list* list, struct ppd_stock* stock) {
 	return TRUE;
 
 }
+
+struct ppd_stock* find_list_item(struct ppd_list* list, char* selectedId) {
+
+	/* Variables */
+	int i;
+	struct ppd_node* current = list->head;
+
+	for (i = 0; i < list->count; i++) {
+		if (strcmp(current->data->id, selectedId) == 0) {
+			return current->data;
+		}
+		current = current->next;
+	}
+
+	return NULL;
+}
+
+
+

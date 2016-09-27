@@ -80,4 +80,4 @@ BOOLEAN reset_coins(struct ppd_system *);
  **/
 BOOLEAN display_coins(struct ppd_system *);
 
-
+BOOLEAN abort_program(struct ppd_system *);

@@ -10,6 +10,9 @@
  ***********************************************************************/
 
 #include "ppd_main.h"
+#include "ppd_utility.h"
+#include "ppd_options.h"
+
 /**
  * @file ppd_menu.h defines the @ref menu_item type and the init_menu
  * function which you need to call to initialise it
@@ -20,6 +23,11 @@
  * The maximum length of a menu item's text
  **/
 #define MENU_NAME_LEN 50
+
+/**
+ * The number of options displayed in the menu
+ **/
+#define NUM_MENU_ITEMS 9
 
 /* represents a function that can be selected from the list of
  * menu_functions - creates a new type called a menu_function
@@ -54,6 +62,8 @@ struct menu_item
  * case means initialization in a loop.
  **/
 void init_menu( struct menu_item*);
+
+void print_menu(struct menu_item*);
 
 menu_function get_menu_choice(struct menu_item*);
 #endif

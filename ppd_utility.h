@@ -28,6 +28,8 @@
  **/
 void read_rest_of_line(void);
 
+BOOLEAN checkBuffer(char buffer[], int bufferLength);
+
 /**
  * Initialise the system to a known safe state. Before you post on the
  * discussion board about this, have a look at the structures as defined

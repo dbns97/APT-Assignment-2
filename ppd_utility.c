@@ -28,6 +28,29 @@ void read_rest_of_line(void)
 	clearerr(stdin);
 }
 
+BOOLEAN checkBuffer(char buffer[], int bufferLength) {
+
+	/*Variables*/
+	int i;
+
+	/* Check every character in the buffer */
+	for (i = 0; i < bufferLength; i++) {
+		/* Replace any newline characters with a null character */
+		if (buffer[i] == '\n') {
+			if (i == 0) return FALSE;
+			buffer[i] = '\0';
+			break;
+		/* If the last character is not a newline character there has been an overflow */
+		} else if (i == bufferLength - 1) {
+			read_rest_of_line();
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+
+}
+
 /**
  * @param system a pointer to a @ref ppd_system struct that holds all
  * the data for the system we are creating

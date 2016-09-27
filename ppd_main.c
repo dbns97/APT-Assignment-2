@@ -26,7 +26,7 @@
  **/
 int main(int argc, char **argv) {
 
-	/*struct menu_item menu[NUM_MENU_ITEMS];*/
+	struct menu_item menu[NUM_MENU_ITEMS];
 
 	/* validate command line arguments */
 
@@ -41,26 +41,30 @@ int main(int argc, char **argv) {
 	load_stock(&system, system.stock_file_name);
 
 	/* --------------- START TESTING --------------- */
-	display_items(&system);
+	/* display_items(&system); */
 	/* ---------------- END TESTING ---------------- */
 
 	/* test if everything has been initialised correctly */
 
 	/* initialise the menu system */
-	/*init_menu(menu);*/
+	init_menu(menu);
 
 	/* loop, asking for options from the menu */
-	/*while (TRUE) {
+	while (TRUE) {
 
-		Variables
-		int i;
+		menu_function funcPtr;
 
-		iterate over all elements of array "menu"
-		for (i = 0; i < (sizeof (menu) / sizeof *(menu)); i++) {
-			printf("%d.%s",i,menu[i]);
+		print_menu(menu);
+
+		funcPtr = get_menu_choice(menu);
+		if (funcPtr == NULL) {
+			printf("\nInvalid selection!\n");
+			continue;
 		}
 
-	}*/
+		(*funcPtr)(&system);
+
+	}
 
 	/* run each option selected */
 
