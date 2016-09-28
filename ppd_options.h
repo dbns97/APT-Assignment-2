@@ -9,6 +9,7 @@
  * Some codes are adopted here with permission by an anonymous author
  ***********************************************************************/
 
+#include <math.h>
 #include "ppd_main.h"
 #include "ppd_utility.h"
 

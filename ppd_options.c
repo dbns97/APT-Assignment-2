@@ -67,9 +67,10 @@ BOOLEAN purchase_item(struct ppd_system * system) {
 	char coinValue[IDLEN + EXTRACHARS];
 	int coinValueLen = IDLEN + EXTRACHARS;
 	char *ptr = NULL;
-	int paid = 0;
+	int paid;
 	int dollarsOwed;
 	int centsOwed;
+	int change;
 
 	/* Prompt user to enter item choice */
 	printf("Purchase Item\n");
@@ -99,22 +100,36 @@ BOOLEAN purchase_item(struct ppd_system * system) {
 	printf("Press enter on a new and empty line to cancel this purchase:\n");
 
 	itemCost = item->price.cents + (100 * item->price.dollars);
+	paid = 0;
 	dollarsOwed = item->price.dollars;
 	centsOwed = item->price.cents;
 
+	/* Receive coins from user until they have paid the full amount or cancelled the transaction */
 	while (paid < itemCost) {
 		printf("You still need to give us $%d.%02d: ", dollarsOwed, centsOwed);
-		
+
 		fgets(coinValue, coinValueLen, stdin);
+		if (coinValue[0] == '\n') break;
 		if (checkBuffer(coinValue, coinValueLen) == FALSE) {
 			printf("Please enter valid value!\n");
 			continue;
 		}
 
+		paid += strtol(coinValue, &ptr, 10);
 		dollarsOwed -= floor(strtol(coinValue, &ptr, 10) / 100);
 		centsOwed -= strtol(coinValue, &ptr, 10) % 100;
 
 	}
+
+	/* Remove one from the qty on hand */
+	item->on_hand--;
+	printf("Thank you. Here is your %s", item->name);
+	if (paid > itemCost) {
+		change = paid - itemCost;
+		printf(", and your change of $%f.%02d", floor(change / 100), (change % 100));
+	}
+	printf(".\n");
+	printf("Please come back soon.\n");
 
 	return TRUE;
 }
