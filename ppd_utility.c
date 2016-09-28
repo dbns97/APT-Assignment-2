@@ -114,12 +114,9 @@ BOOLEAN load_stock(struct ppd_system * system, const char * filename)
 
 	}
 
-	/*
-	 * Please delete this default return value once this function has
-	 * been implemented. Please note that it is convention that until
-	 * a function has been implemented it should return FALSE
-	 */
-	return FALSE;
+	fclose(fp);
+
+	return TRUE;
 }
 
 /**
@@ -143,5 +140,17 @@ BOOLEAN load_coins(struct ppd_system * system, const char * filename)
  **/
 void system_free(struct ppd_system * system)
 {
+	/* Variables */
+	struct ppd_node* current = system->item_list->head;
+
+	while (current != NULL) {
+		struct ppd_node* temp = current;
+		current = current->next;
+
+		free(temp->data);
+		free(temp);
+	}
+
+	free(system->item_list);
 
 }

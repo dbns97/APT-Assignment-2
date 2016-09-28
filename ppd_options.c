@@ -141,12 +141,30 @@ BOOLEAN purchase_item(struct ppd_system * system) {
  **/
 BOOLEAN save_system(struct ppd_system * system)
 {
-    /*
-     * Please delete this default return value once this function has
-     * been implemented. Please note that it is convention that until
-     * a function has been implemented it should return FALSE
-     */
-    return FALSE;
+	/* Variables */
+	int i;
+	FILE* fp;
+	struct ppd_node* current = system->item_list->head;
+
+	/* Open file and write each stock item to it */
+	fp = fopen(system->stock_file_name, "w");
+	for (i = 0; i < system->item_list->count; i++) {
+		fprintf(fp, "%s|%s|%s|%d.%02d|%d\n",
+			current->data->id,
+			current->data->name,
+			current->data->desc,
+			current->data->price.dollars,
+			current->data->price.cents,
+			current->data->on_hand
+		);
+		current = current->next;
+	}
+
+	fclose(fp);
+	system_free(system);
+	exit(0);
+
+    return TRUE;
 }
 
 /**
