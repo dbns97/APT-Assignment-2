@@ -174,12 +174,55 @@ BOOLEAN save_system(struct ppd_system * system)
  **/
 BOOLEAN add_item(struct ppd_system * system)
 {
-    /*
-     * Please delete this default return value once this function has
-     * been implemented. Please note that it is convention that until
-     * a function has been implemented it should return FALSE
-     */
-    return FALSE;
+	/* Variables */
+	struct ppd_stock stock;
+	char buffer[4 + EXTRACHARS];
+	int bufferLen = 4 + EXTRACHARS;
+	char *ptr = NULL;
+	char delim[2] = ".";
+	char* token;
+
+	system->item_list->count++;
+	sprintf(stock.id, "I%04d", system->item_list->count);
+
+	printf("This new meal item will have the Item id of %s\n", stock.id);
+
+	/* Get item name */
+	printf("Enter the item name: ");
+	fgets(stock.name, (NAMELEN + EXTRACHARS), stdin);
+	if (checkBuffer(stock.name, (NAMELEN + EXTRACHARS)) == FALSE) {
+		printf("\nInvalid input!\n\n");
+		return FALSE;
+	}
+
+	/* Get item description */
+	printf("Enter the item description: ");
+	fgets(stock.desc, (DESCLEN + EXTRACHARS), stdin);
+	if (checkBuffer(stock.desc, (DESCLEN + EXTRACHARS)) == FALSE) {
+		printf("\nInvalid input!\n");
+		return FALSE;
+	}
+
+	/* Get item price */
+	printf("Enter the price for this item: ");
+	fgets(buffer, bufferLen, stdin);
+	if (checkBuffer(buffer, bufferLen) == FALSE) {
+		printf("\nInvalid input!\n");
+		return FALSE;
+	}
+
+	token = strtok(buffer, delim);
+	stock.price.dollars = strtol(token, &ptr, 10);
+	token = strtok(NULL, delim);
+	stock.price.cents = strtol(token, &ptr, 10);
+
+	/* Set initial stock level */
+	stock.on_hand = DEFAULT_STOCK_LEVEL;
+
+	printf("This item \"%s - %s\" has now been added to the menu.\n", stock.name, stock.desc);
+
+	/* Add to list */
+    return add_list_item(system->item_list, &stock);
 }
 
 /**

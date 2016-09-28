@@ -62,7 +62,9 @@ int main(int argc, char **argv) {
 			continue;
 		}
 
-		(*funcPtr)(&system);
+		if(!(*funcPtr)(&system)) {
+			printf("Operation failed!");
+		}
 
 	}
 
