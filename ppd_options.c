@@ -62,7 +62,7 @@ BOOLEAN purchase_item(struct ppd_system * system) {
 	/* Variables */
 	char itemId[IDLEN + EXTRACHARS];
 	int itemIdLen = IDLEN + EXTRACHARS;
-	struct ppd_stock* item;
+	struct ppd_node* item;
 	int itemCost;
 	char coinValue[IDLEN + EXTRACHARS];
 	int coinValueLen = IDLEN + EXTRACHARS;
@@ -90,19 +90,19 @@ BOOLEAN purchase_item(struct ppd_system * system) {
 		printf("That item does not exist!\n");
 		printf("Please enter a valid item ID:\n\n");
 		return purchase_item(system);
-	} else if (item->on_hand == 0) {
+	} else if (item->data->on_hand == 0) {
 		printf("Sorry, that item is out of stock!\n\n");
 		return FALSE;
 	}
 
-	printf("You have selected \"%s  %s\". This will cost you $%d.%02d.\n", item->name, item->desc, item->price.dollars, item->price.cents);
+	printf("You have selected \"%s  %s\". This will cost you $%d.%02d.\n", item->data->name, item->data->desc, item->data->price.dollars, item->data->price.cents);
 	printf("Please hand over the money – type in the value of each note/coin in cents.\n");
 	printf("Press enter on a new and empty line to cancel this purchase:\n");
 
-	itemCost = item->price.cents + (100 * item->price.dollars);
+	itemCost = item->data->price.cents + (100 * item->data->price.dollars);
 	paid = 0;
-	dollarsOwed = item->price.dollars;
-	centsOwed = item->price.cents;
+	dollarsOwed = item->data->price.dollars;
+	centsOwed = item->data->price.cents;
 
 	/* Receive coins from user until they have paid the full amount or cancelled the transaction */
 	while (paid < itemCost) {
@@ -122,8 +122,8 @@ BOOLEAN purchase_item(struct ppd_system * system) {
 	}
 
 	/* Remove one from the qty on hand */
-	item->on_hand--;
-	printf("Thank you. Here is your %s", item->name);
+	item->data->on_hand--;
+	printf("Thank you. Here is your %s", item->data->name);
 	if (paid > itemCost) {
 		change = paid - itemCost;
 		printf(", and your change of $%f.%02d", floor(change / 100), (change % 100));
@@ -182,8 +182,7 @@ BOOLEAN add_item(struct ppd_system * system)
 	char delim[2] = ".";
 	char* token;
 
-	system->item_list->count++;
-	sprintf(stock.id, "I%04d", system->item_list->count);
+	sprintf(stock.id, "I%04d", (system->item_list->count + 1));
 
 	printf("This new meal item will have the Item id of %s\n", stock.id);
 
@@ -232,12 +231,46 @@ BOOLEAN add_item(struct ppd_system * system)
  **/
 BOOLEAN remove_item(struct ppd_system * system)
 {
-    /*
-     * Please delete this default return value once this function has
-     * been implemented. Please note that it is convention that until
-     * a function has been implemented it should return FALSE
-     */
-    return FALSE;
+	/* Variables */
+	char id[IDLEN + EXTRACHARS];
+	int idLen = IDLEN + EXTRACHARS;
+	struct ppd_node* item = system->item_list->head;
+	struct ppd_node* prev;
+
+	/* Get the ID of the item to remove from the user */
+	printf("Enter the item id of the item to remove from the menu: ");
+	fgets(id, idLen, stdin);
+	if (checkBuffer(id, idLen) == FALSE) {
+		printf("\nInvalid input!\n");
+		return FALSE;
+	}
+
+	/* Find the correct list item */
+	while (item != NULL) {
+		if (strcmp(item->data->id, id) == 0) break;
+		prev = item;
+		item = item->next;
+	}
+
+	/* Check if item was found */
+	if (item == NULL) {
+		printf("\nThat item does not exist!\n");
+		return FALSE;
+	}
+
+	/* If prev == NULL then we are removing the head item */
+	if (prev == NULL) {
+		system->item_list->head = item->next;
+	} else {
+		prev->next = item->next;
+	}
+
+	free(item->data);
+	free(item);
+
+	system->item_list->count--;
+
+    return TRUE;
 }
 
 /**

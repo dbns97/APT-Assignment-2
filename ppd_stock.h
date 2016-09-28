@@ -165,7 +165,7 @@ struct ppd_list* list_init();
 
 BOOLEAN add_list_item(struct ppd_list* list, struct ppd_stock* stock);
 
-struct ppd_stock* find_list_item(struct ppd_list*, char[]);
+struct ppd_node* find_list_item(struct ppd_list*, char[]);
 
 #endif
 

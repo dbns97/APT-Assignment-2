@@ -81,7 +81,7 @@ BOOLEAN add_list_item(struct ppd_list* list, struct ppd_stock* stock) {
 
 }
 
-struct ppd_stock* find_list_item(struct ppd_list* list, char* selectedId) {
+struct ppd_node* find_list_item(struct ppd_list* list, char* selectedId) {
 
 	/* Variables */
 	int i;
@@ -89,7 +89,7 @@ struct ppd_stock* find_list_item(struct ppd_list* list, char* selectedId) {
 
 	for (i = 0; i < list->count; i++) {
 		if (strcmp(current->data->id, selectedId) == 0) {
-			return current->data;
+			return current;
 		}
 		current = current->next;
 	}
