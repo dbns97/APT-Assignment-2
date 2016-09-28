@@ -176,13 +176,24 @@ BOOLEAN add_item(struct ppd_system * system)
 {
 	/* Variables */
 	struct ppd_stock stock;
+	struct ppd_node* current = system->item_list->head;
+	char maxId[IDLEN + 1] = "";
+	int newIdInt;
+	char *ptr = NULL;
 	char buffer[4 + EXTRACHARS];
 	int bufferLen = 4 + EXTRACHARS;
-	char *ptr = NULL;
+	char *bufferPtr = NULL;
 	char delim[2] = ".";
 	char* token;
 
-	sprintf(stock.id, "I%04d", (system->item_list->count + 1));
+	while (current != NULL) {
+		if (strcmp(current->data->id, maxId) > 0) strcpy(maxId, current->data->id);
+		current = current->next;
+	}
+
+	maxId[0] = '0';
+	newIdInt = strtol(maxId, &ptr, 10) + 1;
+	sprintf(stock.id, "I%04d", newIdInt);
 
 	printf("This new meal item will have the Item id of %s\n", stock.id);
 
@@ -211,9 +222,9 @@ BOOLEAN add_item(struct ppd_system * system)
 	}
 
 	token = strtok(buffer, delim);
-	stock.price.dollars = strtol(token, &ptr, 10);
+	stock.price.dollars = strtol(token, &bufferPtr, 10);
 	token = strtok(NULL, delim);
-	stock.price.cents = strtol(token, &ptr, 10);
+	stock.price.cents = strtol(token, &bufferPtr, 10);
 
 	/* Set initial stock level */
 	stock.on_hand = DEFAULT_STOCK_LEVEL;
