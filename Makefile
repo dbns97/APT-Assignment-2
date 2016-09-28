@@ -25,10 +25,10 @@ FILENAME=ppd
 ########################################################################
 
 make:
-	$(CC) $(CFLAGS) $(SOURCES) -o $(FILENAME)
+	$(CC) $(CFLAGS) $(SOURCES) -lm -o $(FILENAME)
 
 g:
-	$(CC) $(CFLAGS) -g $(SOURCES) -o $(FILENAME)
+	$(CC) $(CFLAGS) -g $(SOURCES) -lm -o $(FILENAME)
 
 clean: $(FILENAME)
 	rm $(FILENAME) 
