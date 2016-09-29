@@ -191,8 +191,7 @@ BOOLEAN add_item(struct ppd_system * system)
 		current = current->next;
 	}
 
-	maxId[0] = '0';
-	newIdInt = strtol(maxId, &ptr, 10) + 1;
+	newIdInt = strtol(&maxId[1], &ptr, 10) + 1;
 	sprintf(stock.id, "I%04d", newIdInt);
 
 	printf("This new meal item will have the Item id of %s\n", stock.id);
@@ -281,6 +280,8 @@ BOOLEAN remove_item(struct ppd_system * system)
 
 	system->item_list->count--;
 
+	printf("Item %s has been removed.\n", id);
+
     return TRUE;
 }
 
@@ -291,12 +292,17 @@ BOOLEAN remove_item(struct ppd_system * system)
  **/
 BOOLEAN reset_stock(struct ppd_system * system)
 {
-    /*
-     * Please delete this default return value once this function has
-     * been implemented. Please note that it is convention that until
-     * a function has been implemented it should return FALSE
-     */
-    return FALSE;
+	/* Variables */
+	struct ppd_node* current = system->item_list->head;
+
+	while (current != NULL) {
+		current->data->on_hand = DEFAULT_STOCK_LEVEL;
+		current = current->next;
+	}
+
+	printf("All stock has been reset to the default level of %d.\n", DEFAULT_STOCK_LEVEL);
+
+    return TRUE;
 }
 
 /**
