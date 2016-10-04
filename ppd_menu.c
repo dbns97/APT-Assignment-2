@@ -80,6 +80,7 @@ menu_function get_menu_choice(struct menu_item * menu) {
 
 	/* Get user input from stdin and check the buffer */
 	fgets(buffer, bufferLength, stdin);
+	if (buffer[0] == '\n') return NULL;
 	if (checkBuffer(buffer, bufferLength) == FALSE) return NULL;
 
 	/* Read value from buffer as number */
