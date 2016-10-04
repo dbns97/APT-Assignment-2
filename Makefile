@@ -12,26 +12,25 @@ SOURCES=ppd_main.c ppd_menu.c ppd_options.c ppd_utility.c ppd_stock.c \
 ppd_coin.c
 HEADERS=ppd_main.h ppd_menu.h ppd_options.h ppd_utility.h ppd_stock.h \
 ppd_coin.h
+OBJECTS=ppd_main.o ppd_menu.o ppd_options.o ppd_utility.o ppd_stock.o \
+ppd_coin.o
 README=ppd_readme
 MAKEFILE=Makefile
 CC=gcc
 CFLAGS=-ansi -Wall -pedantic
 FILENAME=ppd
 
-########################################################################
-# Move this target to the end of the Makefile to zip up your code 
-# when submitting. Do not submit your .dat files, or directories. 
-# We only want the files that are part of your implementation.
-########################################################################
+all: $(OBJECTS)
+	$(CC) $(CFLAGS) -lm -o $(FILENAME) $(OBJECTS)
 
-make:
-	$(CC) $(CFLAGS) $(SOURCES) -lm -o $(FILENAME)
+%.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $^
 
 g:
-	$(CC) $(CFLAGS) -g $(SOURCES) -lm -o $(FILENAME)
+	$(CC) $(CFLAGS) -g -lm -o $(FILENAME) $(OBJECTS)
 
-clean: $(FILENAME)
-	rm $(FILENAME) 
+clean:
+	rm $(FILENAME) $(OBJECTS)
 
 archive:
 	zip $(USER)-a2 $(SOURCES) $(HEADERS) $(README) $(MAKEFILE)

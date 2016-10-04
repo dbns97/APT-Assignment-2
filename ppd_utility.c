@@ -37,7 +37,6 @@ BOOLEAN checkBuffer(char buffer[], int bufferLength) {
 	for (i = 0; i < bufferLength; i++) {
 		/* Replace any newline characters with a null character */
 		if (buffer[i] == '\n') {
-			if (i == 0) return FALSE;
 			buffer[i] = '\0';
 			break;
 		/* If the last character is not a newline character there has been an overflow */

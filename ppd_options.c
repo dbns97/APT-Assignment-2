@@ -79,7 +79,9 @@ BOOLEAN purchase_item(struct ppd_system * system) {
 
 	/* Get user input from stdin and check the buffer */
 	fgets(itemId, itemIdLen, stdin);
-	if (checkBuffer(itemId, itemIdLen) == FALSE) {
+	if (itemId[0] == '\n') {
+		return TRUE;
+	} else if (checkBuffer(itemId, itemIdLen) == FALSE) {
 		printf("Invalid item ID!\n\n");
 		return purchase_item(system);
 	}
@@ -109,8 +111,9 @@ BOOLEAN purchase_item(struct ppd_system * system) {
 		printf("You still need to give us $%d.%02d: ", dollarsOwed, centsOwed);
 
 		fgets(coinValue, coinValueLen, stdin);
-		if (coinValue[0] == '\n') break;
-		if (checkBuffer(coinValue, coinValueLen) == FALSE) {
+		if (coinValue[0] == '\n') {
+			return TRUE;
+		} else if (checkBuffer(coinValue, coinValueLen) == FALSE) {
 			printf("Please enter valid value!\n");
 			continue;
 		}
@@ -199,7 +202,9 @@ BOOLEAN add_item(struct ppd_system * system)
 	/* Get item name */
 	printf("Enter the item name: ");
 	fgets(stock.name, (NAMELEN + EXTRACHARS), stdin);
-	if (checkBuffer(stock.name, (NAMELEN + EXTRACHARS)) == FALSE) {
+	if (stock.name[0] == '\n') {
+		return TRUE;
+	} else if (checkBuffer(stock.name, (NAMELEN + EXTRACHARS)) == FALSE) {
 		printf("\nInvalid input!\n\n");
 		return FALSE;
 	}
@@ -207,7 +212,9 @@ BOOLEAN add_item(struct ppd_system * system)
 	/* Get item description */
 	printf("Enter the item description: ");
 	fgets(stock.desc, (DESCLEN + EXTRACHARS), stdin);
-	if (checkBuffer(stock.desc, (DESCLEN + EXTRACHARS)) == FALSE) {
+	if (stock.desc[0] == '\n') {
+		return TRUE;
+	} else if (checkBuffer(stock.desc, (DESCLEN + EXTRACHARS)) == FALSE) {
 		printf("\nInvalid input!\n");
 		return FALSE;
 	}
@@ -215,7 +222,9 @@ BOOLEAN add_item(struct ppd_system * system)
 	/* Get item price */
 	printf("Enter the price for this item: ");
 	fgets(buffer, bufferLen, stdin);
-	if (checkBuffer(buffer, bufferLen) == FALSE) {
+	if (buffer[0] == '\n') {
+		return TRUE;
+	} else if (checkBuffer(buffer, bufferLen) == FALSE) {
 		printf("\nInvalid input!\n");
 		return FALSE;
 	}
@@ -250,7 +259,9 @@ BOOLEAN remove_item(struct ppd_system * system)
 	/* Get the ID of the item to remove from the user */
 	printf("Enter the item id of the item to remove from the menu: ");
 	fgets(id, idLen, stdin);
-	if (checkBuffer(id, idLen) == FALSE) {
+	if (id[0] == '\n') {
+		return TRUE;
+	} else if (checkBuffer(id, idLen) == FALSE) {
 		printf("\nInvalid input!\n");
 		return FALSE;
 	}
