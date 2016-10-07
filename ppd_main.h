@@ -16,13 +16,11 @@
 #include "ppd_shared.h"
 #ifndef PPD_MAIN
 #define PPD_MAIN
-/**
- * @file ppd_main.h this file holds the rest of the application together.
- * From these header files, main() can call all functions refered to
- * in the header files included. You might also want to insert here
- * any functions for handling and validation of command line arguments
- **/
 
+/**
+ * This function gets the command line arguments and
+ * saves them in the system
+ **/
 BOOLEAN get_params(struct ppd_system* system, int argc, char** argv);
 
 #endif

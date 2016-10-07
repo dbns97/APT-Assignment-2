@@ -33,6 +33,7 @@
  * menu_functions - creates a new type called a menu_function
  */
 typedef BOOLEAN (*menu_function)(struct ppd_system*);
+
 /**
  * represents a menu item to be displayed and executed in the program
  **/
@@ -49,21 +50,17 @@ struct menu_item
 };
 
 /**
- * In this function you need to initialise the array of menu items
- * according to the text to be displayed for the menu. This array is
- * an array of @ref menu_item with a name and a pointer to the function
- * that will be called for that function.
- *
- * Please note that you are expected to initialise the code in such a way
- * that the code will be easy to maintain. Do not hard code values, and
- * do not use magic numbers for array indexes etc. You are expected to use
- * good coding practices at all times. Do not hardcode array indexes -
- * you are expected to write code that is maintainable which in this
- * case means initialization in a loop.
+ * Initialises the menu array with names and function pointers
  **/
 void init_menu( struct menu_item*);
 
+/**
+ * Prints the menu and prompts user to select an option 
+ **/
 void print_menu(struct menu_item*);
 
+/**
+ * Get the user's input and return the appropriate function pointer
+ **/
 menu_function get_menu_choice(struct menu_item*);
 #endif

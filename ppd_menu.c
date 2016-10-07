@@ -16,7 +16,7 @@
  **/
 
 /**
- * @param menu the menu item array to initialise
+ * Initialises the menu array with names and function pointers
  **/
 void init_menu( struct menu_item* menu) {
 	/* Variables */
@@ -51,6 +51,9 @@ void init_menu( struct menu_item* menu) {
 
 }
 
+/**
+ * Prints the menu and prompts user to select an option 
+ **/
 void print_menu(struct menu_item* menu) {
 
 	int i;
@@ -67,8 +70,7 @@ void print_menu(struct menu_item* menu) {
 }
 
 /**
- * @return a menu_function that defines how to perform the user's
- * selection
+ * Get the user's input and return the appropriate function pointer
  **/
 menu_function get_menu_choice(struct menu_item * menu) {
 

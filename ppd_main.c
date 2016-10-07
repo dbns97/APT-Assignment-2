@@ -15,20 +15,12 @@
 #include "ppd_utility.h"
 
 /**
- * @file ppd_main.c contains the main function implementation and any
- * helper functions for main such as a display_usage() function.
- **/
-
-/**
- * manages the running of the program, initialises data structures, loads
- * data and handles the processing of options. The bulk of this function
- * should simply be calling other functions to get the job done.
+ * This function initialises data structures, loads data, displays
+ * the menu and executes the user's selection
  **/
 int main(int argc, char **argv) {
 
 	struct menu_item menu[NUM_MENU_ITEMS];
-
-	/* validate command line arguments */
 
 	/* represents the data structures to manage the system */
 	struct ppd_system system;
@@ -40,12 +32,6 @@ int main(int argc, char **argv) {
 	get_params(&system, argc, argv);
 	load_stock(&system, system.stock_file_name);
 
-	/* --------------- START TESTING --------------- */
-	/* display_items(&system); */
-	/* ---------------- END TESTING ---------------- */
-
-	/* test if everything has been initialised correctly */
-
 	/* initialise the menu system */
 	init_menu(menu);
 
@@ -56,29 +42,27 @@ int main(int argc, char **argv) {
 
 		print_menu(menu);
 
+		/* Get the pointer to the function to execute and check it exists */
 		funcPtr = get_menu_choice(menu);
 		if (funcPtr == NULL) {
 			printf("\nInvalid selection!\n");
 			continue;
 		}
 
+		/* Execute function and check return value */
 		if(!(*funcPtr)(&system)) {
 			printf("Operation failed!");
 		}
 
 	}
 
-	/* run each option selected */
-
-	/* until the user quits */
-
-	/* make sure you always free all memory and close all files
-	 * before you exit the program
-	 */
-
 	return EXIT_SUCCESS;
 }
 
+/**
+ * This function gets the command line arguments and
+ * saves them in the system
+ **/
 BOOLEAN get_params(struct ppd_system* system, int argc, char** argv) {
 
 	if (argc > 1) system->stock_file_name = argv[1];

@@ -16,6 +16,7 @@ OBJECTS=ppd_main.o ppd_menu.o ppd_options.o ppd_utility.o ppd_stock.o \
 ppd_coin.o
 README=ppd_readme
 MAKEFILE=Makefile
+VALREPORT=requirement13.txt
 CC=gcc
 CFLAGS=-ansi -Wall -pedantic
 FILENAME=ppd
@@ -33,5 +34,5 @@ clean:
 	rm $(FILENAME) $(OBJECTS)
 
 archive:
-	zip $(USER)-a2 $(SOURCES) $(HEADERS) $(README) $(MAKEFILE)
+	zip $(USER)a2 $(SOURCES) $(HEADERS) $(README) $(MAKEFILE) $(VALREPORT)
 
