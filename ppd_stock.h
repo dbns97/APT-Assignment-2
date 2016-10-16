@@ -51,6 +51,10 @@
  **/
 #define DEFAULT_STOCK_LEVEL 20
 
+#define MAX_STOCK_LEVEL 99
+#define MAX_DOLLARS 9
+#define MAX_CENTS 99
+
 /**
  * The number of denominations of currency available in the system
  **/

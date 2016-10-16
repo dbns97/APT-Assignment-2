@@ -71,6 +71,8 @@ BOOLEAN purchase_item(struct ppd_system * system) {
 	int dollarsOwed;
 	int centsOwed;
 	int change;
+	int denomVals[] = {1000, 500, 200, 100, 50, 20, 10, 5};
+	int i;
 
 	/* Prompt user to enter item choice */
 	printf("Purchase Item\n");
@@ -118,19 +120,48 @@ BOOLEAN purchase_item(struct ppd_system * system) {
 			continue;
 		}
 
-		paid += strtol(coinValue, &ptr, 10);
-		dollarsOwed -= floor(strtol(coinValue, &ptr, 10) / 100);
-		centsOwed -= strtol(coinValue, &ptr, 10) % 100;
+		/* Add coin to cash register */
+		for (i = 0; i < NUM_DENOMS; i++) {
+			if (strtol(coinValue, &ptr, 10) == denomVals[i]) {
+				system->cash_register[i].count++;
+				paid += strtol(coinValue, &ptr, 10);
+				dollarsOwed -= floor(strtol(coinValue, &ptr, 10) / 100);
+				centsOwed -= strtol(coinValue, &ptr, 10) % 100;
+				break;
+			} else if (i == (NUM_DENOMS - 1)) {
+				printf("Error: %s is not a valid denomination of money.\n", coinValue);
+				break;
+			}
+		}
 
 	}
 
 	/* Remove one from the qty on hand */
 	item->data->on_hand--;
+
+	/* Return change */
 	printf("Thank you. Here is your %s", item->data->name);
 	if (paid > itemCost) {
 		change = paid - itemCost;
-		printf(", and your change of $%f.%02d", floor(change / 100), (change % 100));
+		printf(", and your change of $%.*f.%02d:", 0, floor(change / 100), (change % 100));
+
+		/* Calculate which denominations to return */
+		while (change > 0) {
+			for (i = 0; i < NUM_DENOMS; i++) {
+				if (change >= denomVals[i] && system->cash_register[i].count > 0) {
+					if (change < 100) {
+						printf(" %dc", denomVals[i]);
+					} else {
+						printf(" $%d", (denomVals[i] / 100));
+					}
+					change -= denomVals[i];
+					system->cash_register[i].count--;
+					break;
+				}
+			}
+		}
 	}
+
 	printf(".\n");
 	printf("Please come back soon.\n");
 
@@ -148,8 +179,9 @@ BOOLEAN save_system(struct ppd_system * system)
 	int i;
 	FILE* fp;
 	struct ppd_node* current = system->item_list->head;
+	int denomVals[] = {1000, 500, 200, 100, 50, 20, 10, 5};
 
-	/* Open file and write each stock item to it */
+	/* Open stock file and write each stock item to it */
 	fp = fopen(system->stock_file_name, "w");
 	for (i = 0; i < system->item_list->count; i++) {
 		fprintf(fp, "%s|%s|%s|%d.%02d|%d\n",
@@ -164,6 +196,16 @@ BOOLEAN save_system(struct ppd_system * system)
 	}
 
 	fclose(fp);
+
+	/* Open coins file and write each denomination to it */
+	fp = fopen(system->coin_file_name, "w");
+	for (i = 0; i < NUM_DENOMS; i++) {
+		fprintf(fp, "%d,%d\n", 
+			denomVals[system->cash_register[i].denom],
+			system->cash_register[i].count
+		);
+	}
+
 	system_free(system);
 	exit(0);
 
@@ -323,12 +365,14 @@ BOOLEAN reset_stock(struct ppd_system * system)
  **/
 BOOLEAN reset_coins(struct ppd_system * system)
 {
-    /*
-     * Please delete this default return value once this function has
-     * been implemented. Please note that it is convention that until
-     * a function has been implemented it should return FALSE
-     */
-    return FALSE;
+	/* Variables */
+	int i;
+
+	for (i = 0; i < NUM_DENOMS; i++) {
+		system->cash_register[i].count = 20;
+	}
+
+	return TRUE;
 }
 
 /**
@@ -338,12 +382,52 @@ BOOLEAN reset_coins(struct ppd_system * system)
  **/
 BOOLEAN display_coins(struct ppd_system * system)
 {
-    /*
-     * Please delete this default return value once this function has
-     * been implemented. Please note that it is convention that until
-     * a function has been implemented it should return FALSE
-     */
-    return FALSE;
+	/* Variables */
+	int i;
+	char* val;
+	int count;
+
+	/* Print heading */
+	printf("Coins Summary\n");
+	printf("-------------\n");
+	printf("Denomination | Count\n\n");
+
+	/* Loop over cash_register array */
+	for (i = (NUM_DENOMS - 1); i >= 0; i--) {
+		count = system->cash_register[i].count;
+
+		/* Check which denomination it is and create correct string */
+		switch (system->cash_register[i].denom) {
+			case 0:
+				val = "10 dollars";
+				break;
+			case 1:
+				val = "5 dollars";
+				break;
+			case 2:
+				val = "2 dollars";
+				break;
+			case 3:
+				val = "1 dollar";
+				break;
+			case 4:
+				val = "50 cents";
+				break;
+			case 5:
+				val = "20 cents";
+				break;
+			case 6:
+				val = "10 cents";
+				break;
+			case 7:
+				val = "5 cents";
+				break;
+		}
+
+		printf("%-12s | %d\n", val, count);
+	}
+
+	return TRUE;
 }
 
 BOOLEAN abort_program(struct ppd_system * system) {

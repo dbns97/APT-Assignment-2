@@ -77,40 +77,111 @@ BOOLEAN load_stock(struct ppd_system * system, const char * filename)
 {
 	/* Variables */
 	FILE* fp;
-	char line[IDLEN + 1 + NAMELEN + 1 + DESCLEN + 4 + 1 + 2 + 1]; /* Char array with length of max line length */
+	char line[IDLEN + 1 + NAMELEN + 1 + DESCLEN + 1 + 4 + 1 + 2 + 1]; /* Char array with length of max line length */
 	const char delim[3] = "|.";
+	char* token;
 	struct ppd_stock stock;
+	BOOLEAN fileEmpty = TRUE;
 
 	fp = fopen(filename, "r");
 	if (fp == NULL) return FALSE;
 
 	/* Read line-by-line until the end of the file */
 	while (fgets(line, (sizeof(line)/sizeof(*line)), fp) != NULL) {
-		/* Create new stock struct */
-		/*stock_init(&stock);*/
+		fileEmpty = FALSE;
 
 		/* Assign values to the stock from the line in the file */
-		strcpy(stock.id, strtok(line, delim));
-		strcpy(stock.name, strtok(NULL, delim));
-		strcpy(stock.desc, strtok(NULL, delim));
-		stock.price.dollars = strtol(strtok(NULL, delim), NULL, 10);
-		stock.price.cents = strtol(strtok(NULL, delim), NULL, 10);
-		stock.on_hand = strtol(strtok(NULL, delim), NULL, 10);
+		/* Get item id */
+		token = strtok(line, delim);
+		if (token == NULL) {
+			printf("Invalid ID in stock file!\n");
+			return FALSE;
+		} else if ((sizeof token / sizeof *token) > (IDLEN + 3)) {
+			printf("Length of ID: %lu\n", (sizeof token / sizeof *token));
+			printf("ID in file is too long!\n");
+			return FALSE;
+		}
+		strcpy(stock.id, token);
 
-		/*
-		printf("----------\n");
-		printf("%s\n", stock.id);
-		printf("%s\n", stock.name);
-		printf("%s\n", stock.desc);
-		printf("%d.", stock.price.dollars);
-		printf("%d\n", stock.price.cents);
-		printf("%d\n", stock.on_hand);
-		printf("----------\n");
-		*/
+		/* Get item name */
+		token = strtok(NULL, delim);
+		if (token == NULL) {
+			printf("Invalid name in stock file!\n");
+			return FALSE;
+		} else if ((sizeof token / sizeof *token) > (NAMELEN + 1)) {
+			printf("Name in file is too long!\n");
+			return FALSE;
+		}
+		strcpy(stock.name, token);
+
+		/* Get item description */
+		token = strtok(NULL, delim);
+		if (token == NULL) {
+			printf("Invalid description in stock file!\n");
+			return FALSE;
+		} else if ((sizeof token / sizeof *token) > (DESCLEN + 1)) {
+			printf("Description in file is too long!\n");
+			return FALSE;
+		}
+		strcpy(stock.desc, token);
+
+		/* Get item price, dollars component */
+		token = strtok(NULL, delim);
+		if (token == NULL) {
+			printf("Invalid price (dollars) in stock file!\n");
+			return FALSE;
+		} else if (strtol(token, NULL, 10) == 0 && token[0] != '0') {
+			printf("Invalid price (dollars) in stock file!\n");
+			return FALSE;
+		} else if (strtol(token, NULL, 10) > MAX_DOLLARS || strtol(token, NULL, 10) < 0) {
+			printf("Invalid price (dollars) in stock file!\n");
+			return FALSE;
+		}
+		stock.price.dollars = strtol(token, NULL, 10);
+
+		/* Get item price, cents component */
+		token = strtok(NULL, delim);
+		if (token == NULL) {
+			printf("Invalid price (cents) in stock file!\n");
+			return FALSE;
+		} else if (strtol(token, NULL, 10) == 0 && token[0] != '0') {
+			printf("Invalid price (cents) in stock file!\n");
+			return FALSE;
+		} else if (strtol(token, NULL, 10) > MAX_CENTS || strtol(token, NULL, 10) < 0) {
+			printf("Invalid price (cents) in stock file!\n");
+			return FALSE;
+		}
+		stock.price.cents = strtol(token, NULL, 10);
+
+		/* Get item count */
+		token = strtok(NULL, delim);
+		if (token == NULL) {
+			printf("Invalid count in stock file!\n");
+			return FALSE;
+		} else if (strtol(token, NULL, 10) == 0 && token[0] != '0') {
+			printf("Invalid count in stock file!\n");
+			return FALSE;
+		} else if (strtol(token, NULL, 10) > MAX_STOCK_LEVEL || strtol(token, NULL, 10) < 0) {
+			printf("Invalid count in stock file!\n");
+			return FALSE;
+		}
+		stock.on_hand = strtol(token, NULL, 10);
+
+		token = strtok(NULL, delim);
+		if (token != NULL) {
+			printf("Extra tokens in stock file!\n");
+			return FALSE;
+		}
 
 		/* Add a node to the system's list */
 		add_list_item(system->item_list, &stock);
 
+	}
+
+	/* Check if file is empty */
+	if (fileEmpty) {
+		printf("Stock file empty!\n");
+		return TRUE;
 	}
 
 	fclose(fp);
@@ -124,13 +195,86 @@ BOOLEAN load_stock(struct ppd_system * system, const char * filename)
  **/
 BOOLEAN load_coins(struct ppd_system * system, const char * filename)
 {
-	/*
-	 * Please delete this default return value once this function has
-	 * been implemented. Please note that it is convention that until
-	 * a function has been implemented it should return FALSE
-	 */
-	return FALSE;
+	/* Variables */
+	FILE* fp;
+	char line[4 + 1 + 2 + 1]; /* Char array with length of max line length */
+	int lineCount = 0;
+	char* token;
+	char* ptr;
+	struct coin coins[NUM_DENOMS];
+	int denominations[NUM_DENOMS] = {1000,500,200,100,50,20,10,5};
+	int denomCount;
+	int i;
 
+	/* Initialise coin denominations */
+	for (i = 0; i < NUM_DENOMS; i++) {
+		coins[i].denom = i;
+	}
+
+	fp = fopen(filename, "r");
+	if (fp == NULL) return FALSE;
+
+	/* Read line-by-line until the end of the file */
+	while (fgets(line, (sizeof(line)/sizeof(*line)), fp) != NULL) {
+
+		/* Get and check denomination value from line */
+		token = strtok(line, COIN_DELIM);
+		if (token == NULL) {
+			printf("Invalid line in coin file!");
+			return FALSE;
+		}
+
+		/* Find denomination value in denominations array */
+		for (i = 0; i < NUM_DENOMS; i++) {
+			/* Denomination was found */
+			if (strtol(token, &ptr, 10) == denominations[i]) {
+				/* Get and check count from line */
+				token = strtok(NULL, COIN_DELIM);
+				if (token == NULL) {
+					printf("Invalid line in coin file!");
+					return FALSE;
+				}
+
+				/* Convert to integer and check if it was a valid number */
+				denomCount = strtol(token, &ptr, 10);
+				if (denomCount == 0 && token[0] != '0') {
+					printf("Invalid count in coin file!");
+					return FALSE;
+				}
+
+				coins[i].count = denomCount;
+
+				break;
+			} else {
+				/* denomination was not found, therefore file is invalid */
+				if (i == (NUM_DENOMS - 1)) {
+					printf("Invalid denomination in coin file!");
+					return FALSE;
+				}
+			}
+		}
+
+		/* Make sure there is nothing left on the line */
+		if (strtok(NULL, COIN_DELIM) != NULL) {
+			printf("Invalid line in coin file!");
+			return FALSE;
+		}
+
+		memcpy(system->cash_register, coins, sizeof(system->cash_register));
+
+		lineCount++;
+
+	}
+
+	/* Check if the correct number of denominations was provided */
+	if (lineCount != NUM_DENOMS) {
+		printf("Wrong number of denominations in coin file!");
+		return FALSE;
+	}
+
+	fclose(fp);
+
+	return TRUE;
 }
 
 /**

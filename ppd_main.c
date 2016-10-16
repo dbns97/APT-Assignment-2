@@ -29,8 +29,9 @@ int main(int argc, char **argv) {
 	system_init(&system);
 
 	/* load data */
-	get_params(&system, argc, argv);
-	load_stock(&system, system.stock_file_name);
+	if (!get_params(&system, argc, argv)) {
+		return EXIT_SUCCESS;
+	}
 
 	/* initialise the menu system */
 	init_menu(menu);
@@ -65,15 +66,29 @@ int main(int argc, char **argv) {
  **/
 BOOLEAN get_params(struct ppd_system* system, int argc, char** argv) {
 
-	if (argc > 1) system->stock_file_name = argv[1];
-	if (argc > 2) system->coin_file_name = argv[2];
-
-	if (system->stock_file_name == NULL) {
-		return FALSE;
-	/*} else if (system->coin_file_name == NULL) {
-		return FALSE;*/
+	/* Load stock file */
+	if (argc > 1) {
+		system->stock_file_name = argv[1];
+		if (!load_stock(system, system->stock_file_name)) {
+			printf("Invalid stock file!\n");
+			return FALSE;
+		}
 	} else {
-		return TRUE;
+		printf("Invalid stock file!\n");
+		return FALSE;
 	}
+
+	/* Load coins file */
+	if (argc > 2) {
+		system->coin_file_name = argv[2];
+		if (load_coins(system, system->coin_file_name)) {
+			system->coin_from_file = TRUE;
+		} else {
+			printf("Invalid coins file!\n");
+			printf("Continuing without coin functionality\n");
+		}
+	}
+
+	return TRUE;
 
 }
